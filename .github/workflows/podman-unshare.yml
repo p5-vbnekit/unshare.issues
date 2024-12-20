@@ -1,0 +1,21 @@
+name: podman-unshare
+
+on: [push, workflow_dispatch]
+
+jobs:
+  info-job:
+    runs-on: ubuntu-latest
+    steps:
+      - run: id
+      - run: podman unshare -- id
+      - run: cat /etc/subuid
+      - run: cat /etc/subgid
+
+  test-job:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test" > test.txt
+      - continue-on-error: false
+        run: |
+          # `chown` via `podman unshare` works fine
+          podman unshare -- sh -c 'echo "podman unshare passed"; chown 1:1 test.txt'

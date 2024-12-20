@@ -1,0 +1,21 @@
+name: unshare
+
+on: [push, workflow_dispatch]
+
+jobs:
+  info-job:
+    runs-on: ubuntu-latest
+    steps:
+      - run: id
+      - run: unshare -- id
+      - run: cat /etc/subuid
+      - run: cat /etc/subgid
+
+  test-job:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test" > test.txt
+      - continue-on-error: true
+        run: |
+          # `chown` via `unshare` failed
+          unshare --map-auto --map-root-user -- sh -c 'echo "unshare passed"; chown 1:1 test.txt'
